@@ -1,31 +1,36 @@
 // App.jsx
 import { useState } from "react";
 import FormPeminjaman from "./pages/FormPeminjaman";
+import DataPeminjaman from "./pages/DataPeminjaman";
 
 export default function App() {
   const [nis, setNis] = useState("");
   const [nama, setNama] = useState("");
-  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [mode, setMode] = useState("home"); 
+  // mode: "home" | "form" | "admin"
 
-  const handleRFIDTap = () => {
-    // Simulasi data RFID
+  // Simulasi tap RFID siswa
+  const handleRFIDSiswa = () => {
     setNis("123456");
     setNama("Budi Santoso");
-    setIsFormVisible(true);
+    setMode("form");
   };
-  
 
-  const handleFormSelesai = () => {
-    // Reset data & kembali ke tampilan awal
+  // Simulasi tap RFID guru
+  const handleRFIDGuru = () => {
+    setMode("admin");
+  };
+
+  // Reset balik ke home
+  const handleBack = () => {
     setNis("");
     setNama("");
-    setIsFormVisible(false);
+    setMode("home");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 overflow-hidden">
-      {!isFormVisible ? (
-        // Tampilan awal sebelum tap
+      {mode === "home" && (
         <div className="text-center bg-white p-10 rounded-2xl shadow-lg max-w-md w-full animate-fadeIn border border-gray-100">
           {/* Logo */}
           <div className="flex justify-center mb-5">
@@ -35,26 +40,46 @@ export default function App() {
               className="w-40 h-40 object-contain"
             />
           </div>
-          {/* Tombol */}
-          <button
-            onClick={handleRFIDTap}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-300 ease-out hover:scale-[1.02]"
-          >
-            Simulasi Tap Kartu RFID
-          </button>
-            <div className="mt-6 text-center text-xs text-black/70">
+
+          <div className="space-y-3">
+            {/* Tombol RFID Siswa */}
+            <button
+              onClick={handleRFIDSiswa}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-3 rounded-lg 
+                        shadow-md transition duration-300 ease-in-out 
+                        transform hover:scale-105 hover:shadow-lg active:scale-95"
+            >
+              Simulasi Tap RFID Siswa
+            </button>
+
+            {/* Tombol RFID Guru */}
+            <button
+              onClick={handleRFIDGuru}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg 
+                        shadow-md transition duration-300 ease-in-out 
+                        transform hover:scale-105 hover:shadow-lg active:scale-95"
+            >
+              Simulasi Tap RFID Guru/Admin
+            </button>
+          </div>
+
+          <div className="mt-6 text-center text-xs text-black/70">
             © {new Date().getFullYear()} SMK TI BAZMA
           </div>
         </div>
-      ) : (
-      
-        // Tampilan form setelah tap
+      )}
+
+      {mode === "form" && (
         <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-6 animate-fadeIn">
-            <FormPeminjaman nis={nis} nama={nama} onSelesai={() => setIsFormVisible(false)} />
+          <FormPeminjaman nis={nis} nama={nama} onSelesai={handleBack} />
+        </div>
+      )}
+
+      {mode === "admin" && (
+        <div className="max-w-2xl w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-6 animate-fadeIn">
+          <DataPeminjaman onBack={handleBack} />
         </div>
       )}
     </div>
   );
 }
-
-

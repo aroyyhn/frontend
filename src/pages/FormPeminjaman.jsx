@@ -80,7 +80,8 @@ Keterangan: ${keterangan}`);
       </label>
 
       {/* Jam Peminjaman */}
-      <label className="block text-sm font-medium text-gray-700">
+      <div className="flex gap-4">
+      <label className="flex-1 block text-sm font-medium text-gray-700">
         Jam Peminjaman
         <input
           type="time"
@@ -100,7 +101,7 @@ Keterangan: ${keterangan}`);
       </label>
 
       {/* Jam Pengembalian */}
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="flex-1 block text-sm font-medium text-gray-700">
         Jam Pengembalian
         <input
           type="time"
@@ -110,6 +111,7 @@ Keterangan: ${keterangan}`);
           required
         />
       </label>
+      </div>
 
       {/* Guru Penanggung Jawab */}
       <label className="block text-sm font-medium text-gray-700">
