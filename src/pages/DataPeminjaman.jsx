@@ -1,81 +1,92 @@
-// pages/DataPeminjaman.jsx
-import { useEffect, useState } from "react";
+// DataPeminjaman.jsx
+import { useState, useEffect } from "react";
+import { getPeminjaman, addPeminjaman } from "../services/api";
 
 export default function DataPeminjaman({ onBack }) {
   const [data, setData] = useState([]);
+  const [newItem, setNewItem] = useState("");
 
+  // ambil data peminjaman pas pertama kali render
   useEffect(() => {
-    fetch("http://localhost:5000/api/peminjaman")
-      .then((res) => res.json())
-      .then((result) => setData(result))
-      .catch((err) => console.error(err));
+    fetchData();
   }, []);
 
+  const fetchData = async () => {
+    try {
+      const peminjaman = await getPeminjaman(); // pake fungsi dari api.js
+      setData(peminjaman);
+    } catch (err) {
+      console.error("Error fetch data:", err);
+    }
+  };
+
+  // const handleAdd = async () => {
+  //   try {
+  //     await addPeminjaman({ nama_barang: newItem });
+  //     setNewItem("");
+  //     fetchData(); // refresh data setelah tambah
+  //   } catch (err) {    
+  //     console.error("Error add data:", err);
+  //   }
+  // };
+
   return (
-    <div className="max-w-4xl w-full bg-white p-6 rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Data Peminjaman</h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm">
-          <thead className="bg-blue-50">
-            <tr>
-              {["NIS", "Nama", "Kelas", "Barang", "Guru PJ", "Status"].map((head, idx) => (
-                <th
-                  key={idx}
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-700"
-                >
-                  {head}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.length > 0 ? (
-              data.map((row, i) => (
-                <tr
-                  key={i}
-                  className="border-b last:border-0 hover:bg-blue-50 transition-colors"
-                >
-                  <td className="px-4 py-3 text-sm text-gray-700">{row.nis}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{row.nama}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{row.kelas}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{row.barang}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{row.guru}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        row.status === "Dipinjam"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : row.status === "Dikembalikan"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {row.status}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="px-4 py-6 text-center text-gray-500 text-sm"
-                >
-                  Tidak ada data peminjaman.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
+  
+<div className="max-w-6xl mx-auto">
+  <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+    {/* Header */}
+    <div className="flex justify-between items-center px-6 py-4 border-b">
+      <h1 className="text-xl font-bold text-gray-800">Data Peminjaman</h1>
       <button
         onClick={onBack}
-        className="mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg shadow-sm transition-colors"
+        className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
       >
         Kembali
       </button>
     </div>
+
+    {/* Table */}
+    <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+      <table className="w-full text-sm text-left">
+        <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
+          <tr>
+            <th className="px-4 py-3">No</th>
+            <th className="px-4 py-3">NIS</th>
+            <th className="px-4 py-3">Nama</th>
+            <th className="px-4 py-3">Kelas</th>
+            <th className="px-4 py-3">Device</th>
+            <th className="px-4 py-3">Mata Pelajaran</th>
+            <th className="px-4 py-3">Guru Penanggung Jawab</th>
+            <th className="px-4 py-3 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {data.map((d, index) => (
+            <tr key={d.id} className="hover:bg-gray-50">
+              <td className="px-4 py-3 text-center">{index + 1}</td>
+              <td className="px-4 py-3">{d.nis}</td>
+              <td className="px-4 py-3 font-medium text-gray-800">{d.nama}</td>
+              <td className="px-4 py-3">{d.kelas}</td>
+              <td className="px-4 py-3">{d.device}</td>
+              <td className="px-4 py-3">{d.mapel}</td>
+              <td className="px-4 py-3">{d.guru}</td>
+              <td className="px-4 py-3 text-center">
+                {d.status === "Dipinjam" ? (
+                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
+                    Dipinjam
+                  </span>
+                ) : (
+                  <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                    Dikembalikan
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
   );
 }

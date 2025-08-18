@@ -11,8 +11,8 @@ export default function App() {
 
   // Simulasi tap RFID siswa
   const handleRFIDSiswa = () => {
-    setNis("123456");
-    setNama("Budi Santoso");
+    setNis("2324003");
+    setNama("Ahmad Royhan");
     setMode("form");
   };
 
@@ -70,16 +70,14 @@ export default function App() {
       )}
 
       {mode === "form" && (
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-6 animate-fadeIn">
           <FormPeminjaman nis={nis} nama={nama} onSelesai={handleBack} />
-        </div>
+      )}
+      
+      {mode === "admin" && (
+        <DataPeminjaman onBack={handleBack} />
       )}
 
-      {mode === "admin" && (
-        <div className="max-w-2xl w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-6 animate-fadeIn">
-          <DataPeminjaman onBack={handleBack} />
-        </div>
-      )}
+
     </div>
   );
 }

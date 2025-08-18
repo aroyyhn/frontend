@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { addPeminjaman } from "../services/api";
 
 export default function FormPeminjaman({ nis, nama, onSelesai }) {
   const [barang, setBarang] = useState("");
@@ -7,30 +8,33 @@ export default function FormPeminjaman({ nis, nama, onSelesai }) {
   const [guruPJ, setGuruPJ] = useState("");
   const [keterangan, setKeterangan] = useState("");
 
-  const guruOptions = ["Pak Andi", "Bu Sari", "Pak Budi", "Bu Lina"];
+  const guruOptions = ["Pak Dzikri", "Pak Mirza", "Buk Parni"];
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simulasi simpan data
-    console.log("Data disimpan:", {
-      nis,
-      nama,
-      barang,
-      jamPinjam,
-      jamKembali,
-      guruPJ,
-      keterangan,
-    });
+    try {
+      // kirim ke backend via API
+      await addPeminjaman({
+        nis,
+        nama,
+        barang,
+        jam_pinjam: jamPinjam,
+        jam_kembali: jamKembali,
+        guru_pj: guruPJ,
+        keterangan,
+      });
 
-    alert(`Data berhasil disimpan:
-Guru PJ: ${guruPJ}
-Barang: ${barang}
-Keterangan: ${keterangan}`);
+      alert("Data berhasil disimpan ke database!");
 
-    // Panggil callback dari parent supaya UI kembali ke tampilan awal
-    if (onSelesai) onSelesai();
+      if (onSelesai) onSelesai(); // kembali ke parent
+    } catch (err) {
+      console.error("Gagal simpan data:", err);
+      alert("Terjadi kesalahan saat menyimpan data.");
+    }
   };
+
 
   return (
     <form
@@ -73,15 +77,15 @@ Keterangan: ${keterangan}`);
           <option value="" disabled hidden>
             Pilih Barang
           </option>
-          <option value="Laptop">Laptop</option>
-          <option value="Proyektor">Proyektor</option>
-          <option value="Speaker">Speaker</option>
+          <option value="Laptop 07">Laptop 07</option>
+          <option value="PC 03">PC 03</option>
+          <option value="PC 01">PC 01</option>
         </select>
       </label>
 
-      {/* Jam Peminjaman */}
+      {/* Jam Peminjaman & Pengembalian */}
       <div className="flex gap-4">
-      <label className="flex-1 block text-sm font-medium text-gray-700">
+    <label className="flex-1 block text-sm font-medium text-gray-700">
         Jam Peminjaman
         <input
           type="time"
@@ -100,17 +104,16 @@ Keterangan: ${keterangan}`);
         />
       </label>
 
-      {/* Jam Pengembalian */}
-      <label className="flex-1 block text-sm font-medium text-gray-700">
-        Jam Pengembalian
-        <input
-          type="time"
-          value={jamKembali}
-          onChange={(e) => setJamKembali(e.target.value)}
-          className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required
-        />
-      </label>
+        <label className="flex-1 block text-sm font-medium text-gray-700">
+          Jam Pengembalian
+          <input
+            type="time"
+            value={jamKembali}
+            onChange={(e) => setJamKembali(e.target.value)}
+            className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </label>
       </div>
 
       {/* Guru Penanggung Jawab */}
