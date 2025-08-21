@@ -1,40 +1,50 @@
-import { useState } from "react";
-import { addPeminjaman } from "../services/api";
+import { useState, useEffect } from "react";
+import { getBarang, getGuru, getMapel, addPeminjaman } from "../services/api";
 
 export default function FormPeminjaman({ nis, nama, onSelesai }) {
-  const [barang, setBarang] = useState("");
-  const [jamPinjam, setJamPinjam] = useState("");
-  const [jamKembali, setJamKembali] = useState("");
-  const [guruPJ, setGuruPJ] = useState("");
+  const [barangList, setBarangList] = useState([]);
+  const [guruList, setGuruList] = useState([]);
+  const [mapelList, setListMapel] = useState([]);
+
+  const [id_barang, setBarang] = useState("");
+  const [waktu_pinjam, setJamPinjam] = useState("");
+  const [waktu_kembali, setJamKembali] = useState("");
+  const [mapel, setMapel] = useState("");
+  const [id_guru, setGuruId] = useState("");
   const [keterangan, setKeterangan] = useState("");
+  
 
-  const guruOptions = ["Pak Dzikri", "Pak Mirza", "Buk Parni"];
+  // fetch data barang & guru dari API
+  useEffect(() => {
+    getBarang().then(setBarangList).catch((err) => console.error("Error fetch barang:", err));
+    getGuru().then(setGuruList).catch((err) => console.error("Error fetch guru:", err));
+    getMapel().then(setListMapel).catch((err) => console.error("Error fetch mapel:", err));
+  }, []);
 
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // kirim ke backend via API
       await addPeminjaman({
         nis,
         nama,
-        barang,
-        jam_pinjam: jamPinjam,
-        jam_kembali: jamKembali,
-        guru_pj: guruPJ,
+        id_barang: id_barang,   // foreign key ke tabel barang
+        id_guru: id_guru,       // foreign key ke tabel guru
+        waktu_pinjam: waktu_pinjam,
+        waktu_kembali: waktu_kembali,
+        mapel,       
         keterangan,
       });
 
       alert("Data berhasil disimpan ke database!");
-
-      if (onSelesai) onSelesai(); // kembali ke parent
+      if (onSelesai) onSelesai();
     } catch (err) {
       console.error("Gagal simpan data:", err);
       alert("Terjadi kesalahan saat menyimpan data.");
     }
   };
-
 
   return (
     <form
@@ -68,69 +78,103 @@ export default function FormPeminjaman({ nis, nama, onSelesai }) {
       {/* Barang */}
       <label className="block text-sm font-medium text-gray-700">
         Barang
-        <select
-          value={barang}
-          onChange={(e) => setBarang(e.target.value)}
-          className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required
-        >
-          <option value="" disabled hidden>
-            Pilih Barang
-          </option>
-          <option value="Laptop 07">Laptop 07</option>
-          <option value="PC 03">PC 03</option>
-          <option value="PC 01">PC 01</option>
-        </select>
+      <select
+        value={id_barang}
+        onChange={(e) => setBarang(e.target.value)}
+        className="border rounded p-2 w-full"
+      >
+        <option value="">Pilih Barang</option>
+
+        <optgroup label="Lab Komputer 1">
+          {barangList
+            .filter((b) => b.lokasi === "Lab Komputer 1")
+            .map((b) => (
+              <option key={b.id_barang} value={b.id_barang}>
+                {b.jenis} {b.nomor}
+              </option>
+            ))}
+        </optgroup>
+
+        <optgroup label="Lab Komputer 2">
+          {barangList
+            .filter((b) => b.lokasi === "Lab Komputer 2")
+            .map((b) => (
+              <option key={b.id_barang} value={b.id_barang}>
+                {b.jenis} {b.nomor}
+              </option>
+            ))}
+        </optgroup>
+      </select>
       </label>
 
       {/* Jam Peminjaman & Pengembalian */}
-      <div className="flex gap-4">
-    <label className="flex-1 block text-sm font-medium text-gray-700">
-        Jam Peminjaman
-        <input
-          type="time"
-          value={jamPinjam}
-          onChange={(e) => setJamPinjam(e.target.value)}
-          onFocus={() => {
-            if (!jamPinjam) {
-              const now = new Date();
-              const jam = String(now.getHours()).padStart(2, "0");
-              const menit = String(now.getMinutes()).padStart(2, "0");
-              setJamPinjam(`${jam}:${menit}`);
-            }
-          }}
-          className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          required
-        />
-      </label>
+        <div className="flex gap-4">
+          <label className="flex-1 block text-sm font-medium text-gray-700">
+            Jam Peminjaman
+            <input
+              type="time"
+              value={waktu_pinjam}
+              onFocus={() => {
+                if (!waktu_pinjam) {
+                  const now = new Date();
+                  const hh = String(now.getHours()).padStart(2, "0"); // 0-23
+                  const mm = String(now.getMinutes()).padStart(2, "0");
+                  setJamPinjam(`${hh}:${mm}`);
+                }
+              }}
+              onChange={(e) => setJamPinjam(e.target.value)}
+              className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm 
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              step="60"       // memastikan kompatibilitas 24 jam
+              required
+            />
+          </label>
 
-        <label className="flex-1 block text-sm font-medium text-gray-700">
-          Jam Pengembalian
-          <input
-            type="time"
-            value={jamKembali}
-            onChange={(e) => setJamKembali(e.target.value)}
-            className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </label>
-      </div>
+          <label className="flex-1 block text-sm font-medium text-gray-700">
+            Jam Pengembalian
+            <input
+              type="time"
+              value={waktu_kembali}
+              onChange={(e) => setJamKembali(e.target.value)}
+              className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm 
+                        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              step="60"       // memastikan kompatibilitas 24 jam
+              required
+            />
+          </label>
+        </div>
+      <label className="flex-1 block text-sm font-medium text-gray-700">
+      Mata Pelajaran
+        <select
+        value={mapel}
+        onChange={(e) => setMapel(e.target.value)}
+        className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm 
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        required
+      >
+        <option value="">Pilih Mapel</option>
+        {mapelList.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.nama_mapel}
+          </option>
+        ))}
+      </select>
+
+    </label>
 
       {/* Guru Penanggung Jawab */}
       <label className="block text-sm font-medium text-gray-700">
         Guru Penanggung Jawab
         <select
-          value={guruPJ}
-          onChange={(e) => setGuruPJ(e.target.value)}
+          value={id_guru}
+          onChange={(e) => setGuruId(e.target.value)}
           className="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           required
         >
-          <option value="" disabled hidden>
-            Pilih Guru
-          </option>
-          {guruOptions.map((guru) => (
-            <option key={guru} value={guru}>
-              {guru}
+          <option value="">Pilih Guru</option>
+          {guruList.map((g) => (
+            <option key={g.id_guru} value={g.id_guru}>
+              {g.nama_guru}
             </option>
           ))}
         </select>

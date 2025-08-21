@@ -1,34 +1,22 @@
 // DataPeminjaman.jsx
 import { useState, useEffect } from "react";
-import { getPeminjaman, addPeminjaman } from "../services/api";
+import { getPeminjaman } from "../services/api";
 
 export default function DataPeminjaman({ onBack }) {
   const [data, setData] = useState([]);
-  const [newItem, setNewItem] = useState("");
 
-  // ambil data peminjaman pas pertama kali render
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const peminjaman = await getPeminjaman(); // pake fungsi dari api.js
+      const peminjaman = await getPeminjaman();
       setData(peminjaman);
     } catch (err) {
       console.error("Error fetch data:", err);
     }
   };
-
-  // const handleAdd = async () => {
-  //   try {
-  //     await addPeminjaman({ nama_barang: newItem });
-  //     setNewItem("");
-  //     fetchData(); // refresh data setelah tambah
-  //   } catch (err) {    
-  //     console.error("Error add data:", err);
-  //   }
-  // };
 
   return (
   
@@ -65,11 +53,11 @@ export default function DataPeminjaman({ onBack }) {
             <tr key={d.id} className="hover:bg-gray-50">
               <td className="px-4 py-3 text-center">{index + 1}</td>
               <td className="px-4 py-3">{d.nis}</td>
-              <td className="px-4 py-3 font-medium text-gray-800">{d.nama}</td>
+              <td className="px-4 py-3 font-medium text-gray-800">{d.nama_siswa}</td>
               <td className="px-4 py-3">{d.kelas}</td>
-              <td className="px-4 py-3">{d.device}</td>
-              <td className="px-4 py-3">{d.mapel}</td>
-              <td className="px-4 py-3">{d.guru}</td>
+              <td className="px-4 py-3">{d.nama_barang}</td>
+              <td className="px-4 py-3">{d.nama_mapel}</td>
+              <td className="px-4 py-3">{d.nama_guru}</td>
               <td className="px-4 py-3 text-center">
                 {d.status === "Dipinjam" ? (
                   <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">

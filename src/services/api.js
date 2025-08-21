@@ -1,47 +1,46 @@
-import axios from "axios";
+const BASE_URL = "http://localhost:3000/api";
 
-const API_URL = "http://localhost:3000"; // ganti sesuai backend
-
-// Ambil semua data peminjaman
+// === Peminjaman ===
 export const getPeminjaman = async () => {
-  try {
-    const res = await axios.get(`${API_URL}/peminjaman`);
-    return res.data;
-  } catch (err) {
-    console.error("Error fetch data:", err);
-    throw err;
-  }
+  const res = await fetch(`${BASE_URL}/peminjaman`);
+  if (!res.ok) throw new Error("Gagal fetch data peminjaman");
+  return res.json();
 };
 
-// Tambah data peminjaman
 export const addPeminjaman = async (data) => {
-  try {
-    const res = await axios.post(`${API_URL}/peminjaman/add`, data);
-    return res.data;
-  } catch (err) {
-    console.error("Error add data:", err);
-    throw err;
-  }
+  const res = await fetch(`${BASE_URL}/peminjaman/add`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Gagal menambahkan peminjaman");
+  return res.json();
 };
 
-// Update data peminjaman
-export const updatePeminjaman = async (id, data) => {
-  try {
-    const res = await axios.put(`${API_URL}/peminjaman/${id}`, data);
-    return res.data;
-  } catch (err) {
-    console.error("Error update data:", err);
-    throw err;
-  }
+// === Barang ===
+export const getBarang = async () => {
+  const res = await fetch(`${BASE_URL}/barang`);
+  if (!res.ok) throw new Error("Gagal fetch data barang");
+  return res.json();
 };
 
-// Hapus data peminjaman
-export const deletePeminjaman = async (id) => {
-  try {
-    const res = await axios.delete(`${API_URL}/peminjaman/${id}`);
-    return res.data;
-  } catch (err) {
-    console.error("Error delete data:", err);
-    throw err;
-  }
+// === Guru ===
+export const getGuru = async () => {
+  const res = await fetch(`${BASE_URL}/guru`);
+  if (!res.ok) throw new Error("Gagal fetch data guru");
+  return res.json();
+};
+
+// === Mapel ===
+export const getMapel = async () => {
+  const res = await fetch(`${BASE_URL}/mapel`);
+  if (!res.ok) throw new Error("Gagal fetch data mapel");
+  return res.json();
+};
+
+// === Siswa by RFID ===
+export const getSiswaByRFID = async (uid) => {
+  const res = await fetch(`${BASE_URL}/siswa/rfid/${uid}`);
+  if (!res.ok) throw new Error("Siswa tidak ditemukan");
+  return res.json();
 };
